@@ -29,68 +29,47 @@ struct ListNode {
 class Solution {
 public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        int l1_int = this->getNum(l1);
-        int l2_int = this->getNum(l2);
-        int sum = l1_int + l2_int;
+        ListNode* l1_curr = l1;
+        ListNode* l2_curr = l2;
+        bool carry_over = false;
 
-        cout << l2_int << endl;
-
-        ListNode* output = this->getLL(sum);
-
-        return output;
-   }
-
-    int getNum(ListNode* l) {
-        ListNode* currNode = l;
-        int total = 0;
-        int loops = 0;
-        while (currNode != nullptr) {
-            unsigned int currNum = 0;
-            if (loops == 0)
-                currNum = currNode->val;
-            else 
-                currNum = pow(10, loops) * currNode->val;
-
-            total += currNum;
-            loops += 1;
-            currNode = currNode->next;
-        }
-        return total;
-    }
-
-    ListNode* getLL(int num) {
-        // How this function works is we modulus the input num with powers of 10 (10, 100, 1000, etc...)
-        // if the modulus of the input number and the power of 10 is the modulus number, then we have found how 'big' the number is.
-        // (I say big, but that's not quite accurate. I think I am trying to say we know how many zeroes it should have?)
-        // i.e. 807 % 1000 = 807, this means if we divide 807 by 100 we can get 8 which we can use to compute the tens and ones position.
-        int largest_tens = 0;
-        int loopTimes = 0;
-        for (int i = 1; i <= 100; ++i) {
-            int tens = pow(10, i);
-            int mod = num % tens;
-            if (mod == num)
-                break;
-            largest_tens = tens;
-            loopTimes += 1;
-        }
-
-        // Now that we have the largest tens, we can work our way down and make all nodes
-        // example 857
-        // remainder 856
-        // 857 % 100 = 57
-        // remainder 57
-        // 57 % 10 = 7
-        int remainder = num;
+        ListNode* newNode = nullptr;
         ListNode* prevNode = nullptr;
-        for (int i = loopTimes; i >= 0; --i) {
-            int tens = pow(10, i);
-            int divided = remainder / tens;
-            remainder = remainder % tens;
-            ListNode* newNode = new ListNode(divided, prevNode);
+        ListNode* firstNode = nullptr;
+
+        // Only loop if any of the values is > 0
+        while (l1_curr != nullptr || l2_curr != nullptr || carry_over) {
+            int total = carry_over ? 1 : 0;
+            if (l1_curr != nullptr) {
+                total += l1_curr->val;
+                ListNode* prev = l1_curr;
+                l1_curr = l1_curr->next;
+                delete prev;
+            }
+            if (l2_curr != nullptr) {
+                total += l2_curr->val;
+                ListNode* prev = l2_curr;
+                l2_curr = l2_curr->next;
+                delete prev;
+            }
+
+            if (total >= 10) {
+                total -= 10;
+                carry_over = true;
+            }
+            else
+                carry_over = false;
+
+            newNode = new ListNode(total, nullptr);
+            if (prevNode != nullptr)
+                prevNode->next = newNode;
+            if (firstNode == nullptr)
+                firstNode = newNode;
+            cout << total;
             prevNode = newNode;
         }
-        return prevNode;
-    }
+        return firstNode;
+   }
 };
 
 ListNode* make_linked_list(std::vector<int> input) {
@@ -104,8 +83,8 @@ ListNode* make_linked_list(std::vector<int> input) {
 
 int main()
 {
-    std::vector<int> input1 = { 9 };
-    std::vector<int> input2 = { 1,9,9,9,9,9,9,9,9,9 };
+    std::vector<int> input1 = { 2,4,3 };
+    std::vector<int> input2 = { 5,6,4 };
 
     ListNode* l1 = make_linked_list(input1);
     ListNode* l2 = make_linked_list(input2);
