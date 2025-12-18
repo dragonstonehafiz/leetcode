@@ -3,19 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include <cmath>
 using namespace std;
-
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode() : val(0), next(nullptr) {}
- *     ListNode(int x) : val(x), next(nullptr) {}
- *     ListNode(int x, ListNode *next) : val(x), next(next) {}
- * };
- */
 
 struct ListNode {
     int val;
@@ -29,47 +17,38 @@ struct ListNode {
 class Solution {
 public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        ListNode* l1_curr = l1;
-        ListNode* l2_curr = l2;
         bool carry_over = false;
 
-        ListNode* newNode = nullptr;
-        ListNode* prevNode = nullptr;
-        ListNode* firstNode = nullptr;
+        ListNode* newNode = new ListNode(0, nullptr);
+        ListNode* firstNode = newNode;
 
         // Only loop if any of the values is > 0
-        while (l1_curr != nullptr || l2_curr != nullptr || carry_over) {
+        while (true) {
+            // Add up the current nodes numbers
+            int l1_ = (l1 != nullptr) ? l1->val : 0;
+            int l2_ = (l2 != nullptr) ? l2->val : 0;
             int total = carry_over ? 1 : 0;
-            if (l1_curr != nullptr) {
-                total += l1_curr->val;
-                ListNode* prev = l1_curr;
-                l1_curr = l1_curr->next;
-                delete prev;
-            }
-            if (l2_curr != nullptr) {
-                total += l2_curr->val;
-                ListNode* prev = l2_curr;
-                l2_curr = l2_curr->next;
-                delete prev;
-            }
-
-            if (total >= 10) {
-                total -= 10;
-                carry_over = true;
+            total = total + l1_ + l2_;
+            // Move to next node
+            if (l1)
+                l1 = l1->next;
+            if (l2)
+                l2 = l2->next;
+            // Find if there is any carry over
+            int remainder = total % 10;
+            carry_over = bool(total / 10);
+            // Update new node and make next node
+            newNode->val = remainder;
+            if (l1 != nullptr || l2 != nullptr || carry_over)
+            {
+                newNode->next = new ListNode(0, nullptr);
+                newNode = newNode->next;
             }
             else
-                carry_over = false;
-
-            newNode = new ListNode(total, nullptr);
-            if (prevNode != nullptr)
-                prevNode->next = newNode;
-            if (firstNode == nullptr)
-                firstNode = newNode;
-            cout << total;
-            prevNode = newNode;
+                break;
         }
         return firstNode;
-   }
+    }
 };
 
 ListNode* make_linked_list(std::vector<int> input) {
